@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryApp", "TelemetryApp\TelemetryApp.csproj", "{D45D9040-6E48-4D23-8016-3910CE70B459}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D45D9040-6E48-4D23-8016-3910CE70B459}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D45D9040-6E48-4D23-8016-3910CE70B459}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D45D9040-6E48-4D23-8016-3910CE70B459}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D45D9040-6E48-4D23-8016-3910CE70B459}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B06002C1-D8DF-4F7F-A094-DD673B33EA68}
+	EndGlobalSection
+EndGlobal
