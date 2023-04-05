@@ -1,0 +1,78 @@
+﻿<Window x:Class="TelemetryApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TelemetryApp"
+        xmlns:con="clr-namespace:TelemetryApp.Converter" 
+        xmlns:consts="clr-namespace:TelemetryApp.Common;assembly=TelemetryApp.Common" 
+        mc:Ignorable="d"
+        Title="UdkViewer" Height="650" Width="1085">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="500"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <!--#region Header Buttons & SearchBox-->
+        <DockPanel Grid.Row="0" Margin="6">
+            <TextBox Grid.Column="1" Style="{StaticResource FilePathBoxStyle}"  
+                     Text="{Binding Path=FilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <Button Content="Открыть" Style="{StaticResource SimpleButtonStyle}"
+                    Command="{Binding Path=UpdateCommand}" Click="OpenButton_Click"/>
+            <Button Content="Обзор" Style="{StaticResource SimpleButtonStyle}"
+                    Command="{Binding Path=OpenCommand}" Click="ExploreButton_Click"/>
+        </DockPanel>
+        <!--#endregion-->
+        <!--#region MainContent-->
+        <Border Margin="6" Grid.Row="1" VerticalAlignment="Center" 
+                    HorizontalAlignment="Center" Background="White" 
+                    BorderBrush="Gray" BorderThickness="1"
+                    CornerRadius="2">
+            <StackPanel Width="1085" Height="500" Grid.Row="1">
+                <StackPanel>
+                    <Label x:Name="serviceName" Content="" Height="25"/>
+
+                    <ListView x:Name="ListView1"                                
+                                Style="{StaticResource FrameListViewStyle}"
+                                ItemsSource="{Binding ServiceFramePart}">
+                    </ListView>
+                </StackPanel>
+                <StackPanel>
+                    <Label x:Name="infoName" Content="" Height="25"/>
+                    <ListView x:Name="ListView2"
+                                Style="{StaticResource FrameListViewStyle}"
+                                ItemsSource="{Binding InfoFramePart}">
+                    </ListView>
+                </StackPanel>
+            </StackPanel>            
+        </Border>
+        <!--#endregion-->
+        <!--#region Slider & FrameEnumerator-->
+        <Grid Height="Auto" Grid.Row="2" Margin="6,0,6,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="940"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Slider x:Name ="SL" Value="0" Minimum="0" Maximum="1000" SelectionStart="0" Height="46" 
+                    IsSelectionRangeEnabled="True" 
+                    Grid.Column="0" Margin="0,15,0,0"
+                    ValueChanged="Slider_ValueChanged"
+                    IsSnapToTickEnabled="True"
+                    TickFrequency="1"
+                    Thumb.DragStarted="Slider_DragStarted"
+                    Thumb.DragCompleted="Slider_DragCompleted">
+            </Slider>
+            <StackPanel Grid.Column="1">
+                <Label HorizontalContentAlignment="Center"
+                       FontWeight="Medium" FontSize="11">КАДР</Label>
+                <TextBox HorizontalContentAlignment="Center"
+                         FontWeight="Medium" FontSize="25"
+                        Text="{Binding ElementName=SL, Path=Value, UpdateSourceTrigger=PropertyChanged}"
+                        BorderThickness="0"/>
+            </StackPanel>
+        </Grid>
+        <!--#endregion-->
+    </Grid>
+
+</Window>
