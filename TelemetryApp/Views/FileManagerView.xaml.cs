@@ -1,16 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+﻿using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using TelemetryApp.Models;
+using TelemetryApp.ViewModels;
 
 namespace TelemetryApp.Views
 {
@@ -41,6 +32,16 @@ namespace TelemetryApp.Views
         }
         private void CloseButton_OnClick(object sender, RoutedEventArgs e)
         {
+            Close();
+        }
+
+        private void ListViewControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var selectedFile = (FileDetailsModel)ListViewControl.SelectedItem;
+            if (selectedFile != null && selectedFile.IsExists)
+            {
+                ((FileManagerVM)DataContext).UpdateFileData(selectedFile.Path);
+            }
             Close();
         }
     }

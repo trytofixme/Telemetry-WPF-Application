@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TelemetryApp"
         xmlns:con="clr-namespace:TelemetryApp.Converter" 
-        xmlns:consts="clr-namespace:TelemetryApp.Common;assembly=TelemetryApp.Common" 
+        xmlns:consts="clr-namespace:TelemetryApp;assembly=TelemetryApp" 
         mc:Ignorable="d"
         Title="UdkViewer" Height="650" Width="1085">
     <Grid>
@@ -19,9 +19,9 @@
             <TextBox Grid.Column="1" Style="{StaticResource FilePathBoxStyle}"  
                      Text="{Binding Path=FilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             <Button Content="Открыть" Style="{StaticResource SimpleButtonStyle}"
-                    Command="{Binding Path=UpdateCommand}" Click="OpenButton_Click"/>
+                    Command="{Binding Path=OpenCommand}" Click="OpenButton_Click"/>
             <Button Content="Обзор" Style="{StaticResource SimpleButtonStyle}"
-                    Command="{Binding Path=OpenCommand}" Click="ExploreButton_Click"/>
+                    Click="ExploreButton_Click"/>
         </DockPanel>
         <!--#endregion-->
         <!--#region MainContent-->
@@ -54,7 +54,7 @@
                 <ColumnDefinition Width="940"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Slider x:Name ="SL" Value="0" Minimum="0" Maximum="1000" SelectionStart="0" Height="46" 
+            <Slider x:Name ="SL" Value="{Binding CurrentIndex}" Minimum="0" Maximum="1000" SelectionStart="0" Height="46" 
                     IsSelectionRangeEnabled="True" 
                     Grid.Column="0" Margin="0,15,0,0"
                     ValueChanged="Slider_ValueChanged"

@@ -31,6 +31,7 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition/>
                                 <ColumnDefinition Width="25"/>
+                                <ColumnDefinition Width="25"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Name="PlaceHolder"
                                        Foreground="{TemplateBinding Foreground}"

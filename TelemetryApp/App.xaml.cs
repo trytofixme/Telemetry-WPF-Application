@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Windows;
-using System.ComponentModel.Composition.Hosting;
-using TelemetryApp.Common.Services;
-using System.ComponentModel.Composition;
 
 namespace TelemetryApp
 {

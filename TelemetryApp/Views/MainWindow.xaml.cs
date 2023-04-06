@@ -4,6 +4,8 @@ using System.Windows.Controls;
 using TelemetryApp.ViewModels;
 using TelemetryApp.Utils;
 using TelemetryApp.Views;
+using System;
+using TelemetryApp.Services;
 
 namespace TelemetryApp
 {
@@ -13,7 +15,7 @@ namespace TelemetryApp
     public partial class MainWindow : Window
     {
         private bool _dragStarted = false;
-        private Compositor Compositor { get; } = new Compositor();
+        public static Compositor Compositor { get; } = new Compositor();
         public MainWindow()
         {
             var container = Compositor.Container;
@@ -25,15 +27,14 @@ namespace TelemetryApp
         {
             if (!_dragStarted && int.TryParse(e.NewValue.ToString(), out int intVal)) 
             {
-                ((FileDataVM)DataContext).InitIndex(intVal);
+                ((FileDataVM)DataContext).UpdateSelectedFrame(intVal);
             }
         }
 
         private void Slider_DragCompleted(object sender, DragCompletedEventArgs e)
         {
-            if ((PathUtil.IsValidFileName(((FileDataVM)DataContext).FilePath)) &&
-                int.TryParse(((Slider)sender).Value.ToString(), out int intVal))
-                ((FileDataVM)DataContext).InitIndex(intVal);
+            if (int.TryParse(((Slider)sender).Value.ToString(), out int intVal))
+                ((FileDataVM)DataContext).UpdateSelectedFrame(intVal);
             _dragStarted = false;
         }
 
@@ -52,8 +53,18 @@ namespace TelemetryApp
         }
         private void ExploreButton_Click(object sender, RoutedEventArgs e)
         {
-            FileManagerView wind = new();
-            wind.Show();
+            var viewModelFactory = Compositor.Container.GetExportedValueOrDefault<IViewModelFactory>();
+            if (viewModelFactory == null) return;
+            var viewModelSyncronizeService = new ViewModelSynchronizationService((FileDataVM)DataContext);
+            var fileManagerVM = viewModelFactory.CreateFileManagerVM(viewModelSyncronizeService);
+            var fileManagerWindow = new FileManagerView();
+            fileManagerWindow.Show();
+            fileManagerWindow.DataContext = fileManagerVM;
+        }
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            Application.Current.Shutdown();
         }
     }
 }

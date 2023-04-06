@@ -12,5 +12,11 @@ namespace TelemetryApp.Utils
         {
             return !string.IsNullOrEmpty(fileName) && fileName.EndsWith(".kdr");
         }
+        public static string GetFileExtension(string filePath)
+        {
+            if (filePath == null) return string.Empty;
+            string extension = Path.GetExtension(filePath);
+            return extension;
+        }
     }
 }

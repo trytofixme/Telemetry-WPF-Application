@@ -11,9 +11,9 @@
         MinHeight="600" MinWidth="864"
         WindowStartupLocation="CenterScreen"
         x:Name="FileManager">
-    <Window.DataContext>
+    <!--<Window.DataContext>
         <view:FileManagerVM/>
-    </Window.DataContext>
+    </Window.DataContext>-->
     <Window.Resources>
         <cc:FolderButton x:Key="folderButton"/>
     </Window.Resources>
@@ -149,7 +149,7 @@
                     <TextBlock
                         Text="Быстрый доступ"/>
                     <ItemsControl
-                        ItemsSource="{Binding EasyFolders, UpdateSourceTrigger=PropertyChanged}"
+                        ItemsSource="{Binding QuickAccessFolders, UpdateSourceTrigger=PropertyChanged}"
                         Margin="0,0,0,17">
                         <cc:FolderButton
                             Content="Windows (C:)"
@@ -160,7 +160,7 @@
                     <TextBlock
                         Text="Этот компьютер"/>
                     <ItemsControl
-                        ItemsSource="{Binding TheseComputerFolders, UpdateSourceTrigger=PropertyChanged}"
+                        ItemsSource="{Binding ThisComputerFolders, UpdateSourceTrigger=PropertyChanged}"
                         Margin="0,0,0,17">
                         <cc:FolderButton
                             Content="Видео"
@@ -231,7 +231,7 @@
                 Name="AdressBar"
                 HorizontalAlignment="Stretch"
                 Margin="12,0"
-                Text="C://"
+                Text="{Binding CurrentDirectory}"
                 Style="{StaticResource AdressBarTextBoxStyle}"/>
             </Grid>
             <!--#endregion-->
@@ -244,11 +244,9 @@
                       ScrollViewer.VerticalScrollBarVisibility="Auto"
                       BorderThickness="0"
                       SelectionMode="Extended"
-                      Style="{StaticResource ListViewStyle}">
-                <ListViewItem Content="Program Files" Tag="{StaticResource Folder}"/>
-                <ListViewItem Content="Program Files (x86)" Tag="{StaticResource Folder}"/>
-                <ListViewItem Content="Users" Tag="{StaticResource Folder}"/>
-                <ListViewItem Content="Windows" Tag="{StaticResource Folder}"/>
+                      Style="{StaticResource ListViewStyle}"
+                      ItemsSource="{Binding Files}"
+                      MouseDoubleClick="ListViewControl_MouseDoubleClick">
             </ListView>
             <!--#endregion-->
         </Grid>

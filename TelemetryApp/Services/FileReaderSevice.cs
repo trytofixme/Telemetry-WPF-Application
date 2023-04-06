@@ -1,63 +1,76 @@
 ﻿using System.IO;
-using System.Text;
 using TelemetryApp.Utils;
 using TelemetryApp.Models;
 
-namespace TelemetryApp.Common.Services
+namespace TelemetryApp.Services
 {
     public interface IFileReaderSevice
     {
-        TelemetryFrame[] GetFileData(string filePath);
+        TelemetryFileDataModel GetFileData(FileDetailsModel fileDetailsModel);
     }
     public class FileReaderSevice : IFileReaderSevice
     {
-        public FileReaderSevice() {}
-        public TelemetryFrame[] GetFileData(string filePath)
+        private readonly ITelemetryFileBuildService _telemetryFileBuildService;
+
+        public FileReaderSevice() 
         {
+            _telemetryFileBuildService = new TelemetryFileBuildService();
+        }
+
+        public TelemetryFileDataModel GetFileData(string filePath)
+        {
+
             if (!PathUtil.IsValidFileName(filePath))
             {
-                return System.Array.Empty<TelemetryFrame>();
+                return new TelemetryFileDataModel();
             }
-            string fileData = ReadFromFileToText(filePath);
-            TelemetryFrame[] telemetryFrames = PrepareDataFrame(fileData);
-            return telemetryFrames;
+            string stringData = GetStringDataFromFile(filePath);
+            TelemetryFileDataModel telemetryFile = _telemetryFileBuildService.BuildTelemetryFile(stringData);
+            var fileDetails = new FileDetailsModel() 
+            {
+                Path = filePath,
+                IsDirectory = false,
+                IsExists = true,
+                FileExtension = PathUtil.GetFileExtension(filePath),
+            };
+            telemetryFile.FileDetails = fileDetails;
+            return telemetryFile;
         }
 
-        private static string ReadFromFileToText(string filePath)
+        public TelemetryFileDataModel GetFileData(FileDetailsModel fileDetailsModel)
         {
-            string startupPath = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName, filePath);
-            var fileInf = new FileInfo(startupPath);
+            if (fileDetailsModel.IsExists && !fileDetailsModel.IsDirectory 
+                && PathUtil.IsValidFileName(fileDetailsModel.Path))
+            {
+                return new TelemetryFileDataModel();
+            }
+            string stringData = GetStringDataFromFile(fileDetailsModel.Path);
+            var telemetryFile = _telemetryFileBuildService.BuildTelemetryFile(stringData);
+            telemetryFile.FileDetails = fileDetailsModel;
+            return telemetryFile;
+        }
+
+        private static string GetStringDataFromFile(string stringData)
+        {
+            var fileInf = new FileInfo(stringData);
             if (fileInf.Exists)
             {
-                string fileText = File.ReadAllText(startupPath);
+                string fileText = File.ReadAllText(stringData);
                 return fileText;
             }
-            return string.Empty;
-        }
-        private static TelemetryFrame[] PrepareDataFrame(string stringData)
-        {
-            if (stringData.Length != Consts.FRAME_COUNT * Consts.FRAME_SIZE)
+            else
             {
-                return System.Array.Empty<TelemetryFrame>();
+                try
+                {
+                    var projectDirectoryPath = Path.Combine(Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName, stringData);
+                    string fileText = File.ReadAllText(projectDirectoryPath);
+                    return fileText;
+                }
+                catch 
+                {
+                    return string.Empty;
+                }
             }
-            var res = new TelemetryFrame[Consts.FRAME_COUNT];
-            for (var i = 0; i < stringData.Length; i += Consts.FRAME_SIZE)
-            {
-                int frameCount = i / Consts.FRAME_SIZE;
-
-                var frame = stringData.Substring(i, Consts.FRAME_SIZE);
-                var splittedFrame = GetSplittedFrame(frame);
-                res[frameCount] = new TelemetryFrame(splittedFrame);
-            }
-            return res;
-        }
-        public static string[] GetSplittedFrame(string frame)
-        {
-            var sb = new StringBuilder(frame);
-            sb.Remove(0, Consts.HEADER_SIZE);
-            sb.Remove(sb.Length - 1, 1);
-            var splittedFrame = sb.ToString().Split(' ');
-            return splittedFrame;
         }
     }
 }

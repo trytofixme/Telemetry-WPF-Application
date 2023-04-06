@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
-using TelemetryApp.Common.Services;
+using TelemetryApp.Services;
 using TelemetryApp.ViewModels;
+using TelemetryApp.Views;
 
 namespace TelemetryApp
 {
@@ -16,8 +17,13 @@ namespace TelemetryApp
             var fileReaderService = new FileReaderSevice();
             var viewModelFactory = new ViewModelFactory();
             var fileDataVM = viewModelFactory.CreateFileDataVM(fileReaderService);
+
+            var viewModelSyncronizeService = new ViewModelSynchronizationService(fileDataVM);            
+            var fileManagerVM = viewModelFactory.CreateFileManagerVM(viewModelSyncronizeService);
+            
             batch.AddExportedValue<IFileReaderSevice>(fileReaderService);
             batch.AddExportedValue<IViewModelFactory>(viewModelFactory);
+            batch.AddExportedValue(fileManagerVM);
             batch.AddExportedValue<IFileDataVM>(fileDataVM);
 
             container.Compose(batch);

@@ -1,60 +1,28 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 using TelemetryApp.Commands;
-using TelemetryApp.Common.Services;
 using TelemetryApp.Models;
 using TelemetryApp.Extensions;
+using TelemetryApp.Services;
 
 namespace TelemetryApp.ViewModels
 {
     public interface IFileDataVM : INotifyPropertyChanged
     {
-        void UpdateFileDataVM(string filePath);
-        FileDataModel FileDataModel { get; }
+        void UpdateFileData(object? parameter = null);
     }
     public class FileDataVM : Notifier, IFileDataVM
-    {
+    {        
         private readonly FileReaderSevice _fileReaderSevice;
-
-        private int _currentIndex;
-        public int CurrentIndex 
-        {   get
-            {
-                return _currentIndex;
-            }
-            set 
-            {
-                _currentIndex = value;
-                UpdateSelectedFrame();
-                NotifyPropertyChanged(nameof(CurrentIndex));
-            }
-        }
-        private readonly FileDataModel _fileDataModel;
-        public FileDataModel FileDataModel
-        {
-            get { return _fileDataModel; }
-        }
-        public string FilePath
-        {
-            get
-            {
-                return FileDataModel.FilePath;
-            }
-            set
-            {
-                FileDataModel.FilePath = value;
-                NotifyPropertyChanged(nameof(FilePath));
-            }
-        }
-
-        private ICommand _updateCommand;
-        public ICommand UpdateCommand => _updateCommand ??= new RelayCommand(
-                                         obj => UpdateFileDataVM(FilePath));
-
+        private TelemetryFileDataModel _fileDataModel;
+        private TelemetryFrame _selectedTelemetryFrame;
+        private ICommand _openCommand;
         private ushort[] _serviceFramePart;
+        private ushort[] _infoFramePart;
+        private int _currentIndex;        
+
         public ObservableCollection<ushort> ServiceFramePart
         {
             get
@@ -68,7 +36,6 @@ namespace TelemetryApp.ViewModels
             }
         }
 
-        private ushort[] _infoFramePart;
         public ObservableCollection<ushort> InfoFramePart
         {
             get
@@ -82,51 +49,82 @@ namespace TelemetryApp.ViewModels
             }
         }
 
-        public ushort[] _selectedTelemetryFrame;
-        public ObservableCollection<ushort> SelectedTelemetryFrame
+        public TelemetryFrame SelectedTelemetryFrame
         {
             get
             {
-                return _selectedTelemetryFrame.ToObservableCollection();
+                return _selectedTelemetryFrame;
             }
             set
             {
-                _selectedTelemetryFrame = value.ToArray();
+                if (_selectedTelemetryFrame == null || value == null)
+                {
+                    _selectedTelemetryFrame = new TelemetryFrame();
+                }
+                else
+                {
+                    _selectedTelemetryFrame = value;
+                }
+                ServiceFramePart = _selectedTelemetryFrame.Frame.Take(Consts.SERVICE_FRAME_PART_SIZE)
+                                   .ToArray().ToObservableCollection();
+                InfoFramePart = _selectedTelemetryFrame.Frame.Skip(Consts.SERVICE_FRAME_PART_SIZE)
+                                .ToArray().ToObservableCollection();
                 NotifyPropertyChanged(nameof(SelectedTelemetryFrame));
             }
         }
 
+        public string FilePath
+        {
+            get
+            {
+                return _fileDataModel.FileDetails.Path;
+            }
+            set
+            {
+                _fileDataModel.FileDetails.Path = value;
+                NotifyPropertyChanged(nameof(FilePath));
+            }
+        }
+        public int CurrentIndex
+        {
+            get
+            {
+                return _currentIndex;
+            }
+            set
+            {
+                _currentIndex = value;
+                NotifyPropertyChanged(nameof(CurrentIndex));
+            }
+        }
+
+        public ICommand OpenCommand => _openCommand ??= new RelayCommand(
+                                         obj => UpdateFileData(FilePath));
+
         public FileDataVM(FileReaderSevice fileReaderSevice)
         {
             _fileReaderSevice = fileReaderSevice;
-            _fileDataModel = new FileDataModel(_fileReaderSevice);
-            _selectedTelemetryFrame = Array.Empty<ushort>();
-            _serviceFramePart = Array.Empty<ushort>();
-            _infoFramePart= Array.Empty<ushort>();
-            _updateCommand = new RelayCommand(obj => UpdateFileDataVM(FilePath));
-            InitIndex(0);
+            _fileDataModel = new TelemetryFileDataModel();
+            SelectedTelemetryFrame = new TelemetryFrame();
+            InfoFramePart = new ObservableCollection<ushort>();
+            ServiceFramePart = new ObservableCollection<ushort>();
+            CurrentIndex = 0;
         }
         
-        public void UpdateFileDataVM(string? parameter=null)
+        public void UpdateFileData(object? parameter = null)
         {
-            FileDataModel.UpdateFileData(FilePath);
-            UpdateSelectedFrame();
+            if (parameter == null) return;
+            TelemetryFileDataModel newFileData = _fileReaderSevice.GetFileData(parameter.ToString());
+            _fileDataModel.UpdateFileData(newFileData);
+            FilePath = _fileDataModel.FileDetails.Path;
+            CurrentIndex = 0;
+            SelectedTelemetryFrame = _fileDataModel.TelemetryData.GetFrameAt(CurrentIndex);
         }
 
-        public void UpdateSelectedFrame()
-        {
-            SelectedTelemetryFrame = FileDataModel.TelemetryFrame
-                                    .GetCurrentFrame(CurrentIndex).CurrentFrame.ToObservableCollection();
-            ServiceFramePart = _selectedTelemetryFrame.Take(Consts.SERVICE_PART_FRAME_SIZE)
-                               .ToArray().ToObservableCollection();
-            InfoFramePart = _selectedTelemetryFrame.Skip(Consts.SERVICE_PART_FRAME_SIZE)
-                            .ToArray().ToObservableCollection();
-        }
-
-        public void InitIndex(int index = 0)
+        public void UpdateSelectedFrame(int index = 0)
         {
             CurrentIndex = index;
+            SelectedTelemetryFrame = _fileDataModel.TelemetryData.GetFrameAt(CurrentIndex);
         }
     }
-
 }
